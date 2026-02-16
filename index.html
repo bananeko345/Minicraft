@@ -3,163 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Web Minecraft Ultimate</title>
+    <title>Ultimate Web Minecraft</title>
     <style>
         body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; user-select: none; }
         /* ホーム画面 */
-        #menu { position: absolute; width: 100%; height: 100%; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://web.archive.org'); background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; text-shadow: 2px 2px #000; }
-        input { padding: 12px; font-size: 18px; margin: 10px; width: 280px; border: 3px solid #fff; background: rgba(0,0,0,0.7); color: white; }
-        button { padding: 12px; font-size: 18px; cursor: pointer; background: #555; color: white; border: 3px solid #fff; margin: 5px; width: 310px; box-shadow: 0 4px #000; }
-        button:active { transform: translateY(4px); box-shadow: none; }
+        #menu { position: absolute; width: 100%; height: 100%; background: #222; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; color: white; }
+        input { padding: 12px; font-size: 18px; margin: 10px; width: 280px; border: 3px solid #fff; background: #000; color: white; }
+        button { padding: 12px; font-size: 18px; cursor: pointer; background: #555; color: white; border: 3px solid #fff; margin: 5px; width: 310px; }
 
-        /* HUD */
+        /* HUD & UI */
         #hud { display: none; pointer-events: none; position: absolute; width: 100%; height: 100%; color: white; }
-        #coords { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 8px; font-size: 14px; border: 1px solid #fff; }
-        #chat { position: absolute; top: 10px; left: 10px; width: 300px; height: 120px; background: rgba(0,0,0,0.4); padding: 10px; overflow: hidden; border-radius: 5px; }
-        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; font-weight: bold; color: rgba(255,255,255,0.8); }
+        #coords { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); padding: 5px; font-size: 14px; }
+        #chat-log { position: absolute; top: 10px; left: 10px; width: 250px; height: 150px; background: rgba(0,0,0,0.3); overflow: hidden; padding: 5px; font-size: 12px; }
+        #crosshair { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 24px; }
         
         /* ホットバー & インベントリ */
-        #hotbar { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: auto; background: rgba(0,0,0,0.6); padding: 6px; border: 2px solid #333; }
-        .slot { width: 50px; height: 50px; border: 3px solid #888; display: flex; align-items: center; justify-content: center; background: #444; position: relative; }
+        #hotbar { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 4px; pointer-events: auto; background: rgba(0,0,0,0.6); padding: 5px; border: 2px solid #333; }
+        .slot { width: 45px; height: 45px; border: 2px solid #888; background: #444; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         .slot.active { border-color: #fff; background: #777; }
-        .slot::after { content: attr(data-key); position: absolute; top: 2px; left: 2px; font-size: 10px; color: #ccc; }
-        #inv-window { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 350px; height: 400px; background: #c6c6c6; border: 4px solid #333; pointer-events: auto; z-index: 200; padding: 20px; color: #333; }
+        #inv-btn { background: #b8860b; cursor: pointer; }
+        #inv-screen { display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; height: 350px; background: #c6c6c6; border: 4px solid #333; pointer-events: auto; z-index: 200; padding: 20px; color: #333; }
 
         /* タブレット操作 */
-        #mobile-btns { position: absolute; bottom: 100px; right: 20px; display: none; pointer-events: auto; }
-        .m-btn { width: 70px; height: 70px; background: rgba(255,255,255,0.2); border: 2px solid #fff; border-radius: 50%; color: white; margin-bottom: 10px; font-weight: bold; }
+        #touch-ui { position: absolute; bottom: 80px; right: 20px; display: none; pointer-events: auto; }
+        .t-btn { width: 65px; height: 65px; background: rgba(255,255,255,0.2); border: 2px solid #fff; border-radius: 50%; color: white; margin: 5px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="menu">
-        <h1>WEB MINECRAFT ULTIMATE</h1>
-        <input type="text" id="playerName" placeholder="名前を決めてね">
-        <button onclick="launch('pc')">PCでプレイ (WASD)</button>
-        <button onclick="launch('tablet')">タブレットでプレイ</button>
+        <h1>ULTIMATE MINECRAFT ONLINE</h1>
+        <input type="text" id="playerName" placeholder="名前を入力">
+        <button onclick="start('pc')">PCでプレイ (WASD)</button>
+        <button onclick="start('tablet')">タブレットでプレイ</button>
     </div>
 
     <div id="hud">
-        <div id="chat"><b>[System]</b> ようこそ！<br></div>
+        <div id="chat-log"></div>
         <div id="coords">XYZ: 0, 0, 0</div>
         <div id="crosshair">+</div>
         <div id="hotbar">
-            <div class="slot active" data-key="1">石</div>
-            <div class="slot" data-key="2">土</div>
-            <div class="slot" data-key="3">草</div>
-            <div class="slot" data-key="4">木</div>
-            <div class="slot" data-key="5">砂</div>
-            <div class="slot" style="background:#b8860b; cursor:pointer;" onclick="toggleInv()">E</div>
+            <div class="slot active" id="s1">石</div><div class="slot" id="s2">草</div><div class="slot" id="s3">木</div>
+            <div class="slot" id="s4">砂</div><div class="slot" id="s5">土</div><div class="slot" id="s6">鉄</div>
+            <div class="slot" id="s7">金</div><div class="slot" id="s8">TNT</div>
+            <div class="slot" id="inv-btn" onclick="toggleInv()">E</div>
         </div>
-        <div id="mobile-btns">
-            <button class="m-btn" id="m-break">破壊</button><br>
-            <button class="m-btn" id="m-place">設置</button>
+        <div id="touch-ui">
+            <button class="t-btn" id="b-break">破壊</button>
+            <button class="t-btn" id="b-place">設置</button>
         </div>
     </div>
 
-    <div id="inv-window">
-        <h2>CRAFTING & INVENTORY</h2>
-        <p>ここで500種類のアイテムを管理できます。</p>
-        <button onclick="toggleInv()" style="width:100%; background:#888;">閉じる</button>
+    <div id="inv-screen">
+        <h3>INVENTORY / CRAFT</h3>
+        <p>500種類のアイテムをここに実装します。</p>
+        <button onclick="toggleInv()" style="width:100%;">閉じる</button>
     </div>
 
     <script type="importmap">
-        { "imports": { "three": "https://unpkg.com", "controls": "https://unpkg.com" } }
+        { "imports": { 
+            "three": "https://unpkg.com", 
+            "controls": "https://unpkg.com",
+            "firebase/app": "https://www.gstatic.com",
+            "firebase/database": "https://www.gstatic.com"
+        } }
     </script>
 
     <script type="module">
         import * as THREE from 'three';
         import { PointerLockControls } from 'controls';
+        import { initializeApp } from 'firebase/app';
+        import { getDatabase, ref, onValue, set, push, onChildAdded, onChildRemoved } from 'firebase/database';
 
-        let scene, camera, renderer, controls, playerDevice;
+        // --- Firebase設定 (自分のプロジェクトの値に書き換えてください) ---
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // -----------------------------------------------------------
+
+        let app, db, scene, camera, renderer, controls, deviceType, myId;
         let moveF = false, moveB = false, moveL = false, moveR = false;
         let velocity = new THREE.Vector3(), direction = new THREE.Vector3();
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2(0, 0);
-        let mobs = [];
+        let remotePlayers = {}, blocks = {}, mobs = [];
 
-        window.launch = (device) => {
-            playerDevice = device;
+        window.start = (device) => {
+            deviceType = device;
             document.getElementById('menu').style.display = 'none';
             document.getElementById('hud').style.display = 'block';
-            if(device === 'tablet') document.getElementById('mobile-btns').style.display = 'block';
+            if(device === 'tablet') document.getElementById('touch-ui').style.display = 'block';
+            
+            // Firebase初期化 (設定が正しい場合のみ動く)
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getDatabase(app);
+                setupMultiplayer();
+            } catch(e) { console.log("Firebase未設定: シングルプレイモード"); }
+            
             init();
-            loop();
+            animate();
         };
 
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x87ceeb); // 昼の色
-            scene.fog = new THREE.FogExp2(0x87ceeb, 0.01);
+            scene.background = new THREE.Color(0x87ceeb);
+            scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 10, 20);
+            camera.position.set(0, 5, 10);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            // 太陽と環境光
-            const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+            scene.add(new THREE.AmbientLight(0x606060));
+            const sun = new THREE.DirectionalLight(0xffffff, 1);
             sun.position.set(50, 100, 50);
             scene.add(sun);
-            scene.add(new THREE.AmbientLight(0x606060));
 
-            // 地形生成（砂漠・海・草原のシミュレーション）
-            const box = new THREE.BoxGeometry(1, 1, 1);
-            for(let x = -25; x < 25; x++) {
-                for(let z = -25; z < 25; z++) {
-                    let color = 0x3e9b1c; // 草原
-                    let y = Math.floor(Math.random() * 2); 
-                    if (Math.abs(x) > 20 || Math.abs(z) > 20) { color = 0x1e90ff; y = -1; } // 海
-                    else if (x > 15) { color = 0xedc9af; y = 0; } // 砂漠
-                    
-                    const mat = new THREE.MeshLambertMaterial({ color: color });
-                    const mesh = new THREE.Mesh(box, mat);
-                    mesh.position.set(x, y, z);
-                    scene.add(mesh);
+            // 地形・モブ生成
+            const geo = new THREE.BoxGeometry(1, 1, 1);
+            for(let x = -20; x < 20; x++) {
+                for(let z = -20; z < 20; z++) {
+                    let color = 0x3e9b1c; // 草
+                    if(Math.abs(x) > 15 || Math.abs(z) > 15) color = 0x1e90ff; // 海
+                    else if(x > 10) color = 0xedc9af; // 砂漠
+                    const b = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({color}));
+                    b.position.set(x, 0, z);
+                    scene.add(b);
                 }
             }
-
-            // モブ20種の追加（簡易版：動く立方体）
             for(let i=0; i<20; i++) {
-                const mob = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.5, 0.8), new THREE.MeshLambertMaterial({color: 0xff0000}));
-                mob.position.set(Math.random()*30-15, 2, Math.random()*30-15);
-                scene.add(mob);
-                mobs.push(mob);
+                const mob = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1, 0.8), new THREE.MeshLambertMaterial({color: 0xaa0000}));
+                mob.position.set(Math.random()*20-10, 1, Math.random()*20-10);
+                scene.add(mob); mobs.push(mob);
             }
 
-            // 操作系
+            // 操作
             controls = new PointerLockControls(camera, document.body);
-            if(playerDevice === 'pc') {
+            if(deviceType === 'pc') {
                 document.body.addEventListener('click', () => controls.lock());
                 document.addEventListener('keydown', (e) => {
                     if(e.code === 'KeyW') moveF = true; if(e.code === 'KeyS') moveB = true;
                     if(e.code === 'KeyA') moveL = true; if(e.code === 'KeyD') moveR = true;
                     if(e.code === 'KeyE') toggleInv();
-                    if(e.key >= 1 && e.key <= 5) selectSlot(e.key-1);
                 });
                 document.addEventListener('keyup', (e) => {
                     if(e.code === 'KeyW') moveF = false; if(e.code === 'KeyS') moveB = false;
                     if(e.code === 'KeyA') moveL = false; if(e.code === 'KeyD') moveR = false;
                 });
                 window.addEventListener('mousedown', (e) => {
-                    if(!controls.isLocked) return;
-                    action(e.button === 0 ? 'break' : 'place');
+                    if(controls.isLocked) action(e.button === 0 ? 'break' : 'place');
                 });
             }
-
-            // タブレット用
-            document.getElementById('m-break').ontouchstart = () => action('break');
-            document.getElementById('m-place').ontouchstart = () => action('place');
+            document.getElementById('b-break').ontouchstart = () => action('break');
+            document.getElementById('b-place').ontouchstart = () => action('place');
         }
 
         function action(type) {
             raycaster.setFromCamera(mouse, camera);
             const hits = raycaster.intersectObjects(scene.children);
-            if (hits.length > 0 && hits.distance < 8) {
-                if (type === 'break') scene.remove(hits.object);
-                else {
+            if(hits.length > 0 && hits.distance < 6) {
+                if(type === 'break') {
+                    scene.remove(hits.object);
+                } else {
                     const p = hits.object.position.clone().add(hits.face.normal);
                     const b = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), new THREE.MeshLambertMaterial({color: 0x8b4513}));
                     b.position.copy(p);
@@ -168,53 +182,60 @@
             }
         }
 
-        function loop() {
-            requestAnimationFrame(loop);
+        function setupMultiplayer() {
+            myId = Math.random().toString(36).substring(7);
+            const playerRef = ref(db, 'players/' + myId);
+            setInterval(() => {
+                set(playerRef, { x: camera.position.x, y: camera.position.y, z: camera.position.z });
+            }, 100);
+
+            onValue(ref(db, 'players'), (snap) => {
+                const data = snap.val();
+                for(let id in data) {
+                    if(id === myId) continue;
+                    if(!remotePlayers[id]) {
+                        remotePlayers[id] = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.8, 0.8), new THREE.MeshLambertMaterial({color: 0xffff00}));
+                        scene.add(remotePlayers[id]);
+                    }
+                    remotePlayers[id].position.set(data[id].x, data[id].y, data[id].z);
+                }
+            });
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
             const delta = 0.1;
-            if (controls.isLocked || playerDevice === 'tablet') {
+            if(controls.isLocked || deviceType === 'tablet') {
                 velocity.x -= velocity.x * 10 * delta;
                 velocity.z -= velocity.z * 10 * delta;
                 direction.z = Number(moveF) - Number(moveB);
                 direction.x = Number(moveR) - Number(moveL);
                 direction.normalize();
-                if (moveF || moveB) velocity.z -= direction.z * 400 * delta;
-                if (moveL || moveR) velocity.x -= direction.x * 400 * delta;
+                if(moveF || moveB) velocity.z -= direction.z * 400 * delta;
+                if(moveL || moveR) velocity.x -= direction.x * 400 * delta;
                 controls.moveRight(-velocity.x * delta);
                 controls.moveForward(-velocity.z * delta);
                 document.getElementById('coords').innerText = `XYZ: ${Math.round(camera.position.x)}, ${Math.round(camera.position.y)}, ${Math.round(camera.position.z)}`;
             }
-
-            // モブAI（フラフラ歩く）
-            mobs.forEach(m => {
-                m.position.x += Math.sin(Date.now() * 0.001 + m.id) * 0.02;
-                m.position.z += Math.cos(Date.now() * 0.001 + m.id) * 0.02;
-            });
-
-            // 昼夜サイクル（空の色を変化）
-            const skyHue = (Math.sin(Date.now() * 0.0001) + 1) / 2;
-            scene.background.setHSL(0.6, 0.8, 0.2 + skyHue * 0.4);
-
+            // 昼夜・モブ移動
+            scene.background.setHSL(0.6, 0.7, 0.3 + Math.sin(Date.now()*0.0001)*0.3);
+            mobs.forEach(m => { m.position.x += Math.sin(Date.now()*0.001 + m.id)*0.01; });
             renderer.render(scene, camera);
         }
 
         window.toggleInv = () => {
-            const win = document.getElementById('inv-window');
-            const show = win.style.display === 'block';
-            win.style.display = show ? 'none' : 'block';
-            if(!show && playerDevice === 'pc') controls.unlock();
+            const el = document.getElementById('inv-screen');
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
+            if(el.style.display === 'block' && deviceType === 'pc') controls.unlock();
         };
 
-        window.selectSlot = (i) => {
-            document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.slot')[i].classList.add('active');
-        };
-
-        window.addEventListener('contextmenu', e => e.preventDefault());
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
+        window.addEventListener('contextmenu', e => e.preventDefault());
     </script>
 </body>
 </html>
+
